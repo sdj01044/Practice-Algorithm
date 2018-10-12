@@ -1,63 +1,44 @@
 #include <iostream>
-#include <queue>
+#include <deque>
 using namespace std;
 
 int main() {
-	int N;	// 큐의 크기
-	int M;	// 뽑으려고 하는 개수
+	int N, M;
 	cin >> N >> M;
-
-	int* q = new int[N+1];
-	for (int i = 0; i < N; i++) {
-		q[i] = i;
+	deque<int> dq;
+	for (int i = 1; i <= N; i++) {
+		dq.push_back(i);
 	}
 
-	int head = 0, min = -1, half = N / 2;
-	for (int i = 0; i < M; i++) {
-		int target;
+	int cnt = 0;
+	while (M--) {
+		int target, l_cnt = 0, r_cnt = 0;
 		cin >> target;
-		target--;
-
-		int pivot = (head + half) % N;
-		int count = 0;
-		if (pivot > target) {	// 2번이 가까움
-			if (target - head < 0) {
-				while (q[head] != target) {
-					head++;
-					if (head == N)
-						head = 0;
-					if (q[head] == -1)
-						continue;
-					count++;
-				}
-			}
-			else
-				count = target - head;
-		}
-		else {					// 3번이 가까움
-			while (q[head] != target) {
-				head--;
-				if (head == -1)
-					head = N;
-				if (q[head] == -1)
-					continue;
-				count++;
-			}
+		deque<int> lq = dq, rq = dq;
+		while (lq.front() != target) {
+			int tmp = lq.front();
+			lq.pop_front();
+			lq.push_back(tmp);
+			l_cnt++;
 		}
 
-		if (min == -1)
-			min = count;
-		else if (min > count)
-			min = count;
+		while (rq.front() != target) {
+			int tmp = rq.back();
+			rq.pop_back();
+			rq.push_front(tmp);
+			r_cnt++;
+		}
 
-		q[head] = -1;
-		N--;
+		if (l_cnt > r_cnt) {
+			dq = rq;
+			cnt += r_cnt;
+		}
+		else {
+			dq = lq;
+			cnt += l_cnt;
+		}
+		dq.pop_front();
 	}
-
-	for (int i = 0; i < N; i++)
-		cout << q[i] << ",";
-	cout << endl;
-	cout << min << endl;
-
+	cout << cnt << endl;
 	return 0;
 }
